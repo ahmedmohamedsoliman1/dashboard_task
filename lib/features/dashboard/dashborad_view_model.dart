@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../models/language_model.dart';
 import '../../widgets/list_view_item.dart';
@@ -84,6 +87,19 @@ class DashBoardViewModel extends ChangeNotifier {
 
   ] ;
 
+  final Completer<GoogleMapController> mainController =
+  Completer<GoogleMapController>();
+
+  BitmapDescriptor? customIcon ;
+
+   CameraPosition mainPosition = const CameraPosition(
+      target: LatLng(23.7985053,90.3842538 ),
+      zoom: 15);
+
+   Set<Marker> markers = <Marker>{};
+   GoogleMapController? mapController ;
+   bool themeDone = false ;
+
   void menuPressed () {
     isMeniPressed = !isMeniPressed ;
     notifyListeners();
@@ -133,4 +149,42 @@ class DashBoardViewModel extends ChangeNotifier {
     isTotalSalesMenuPressed = !isTotalSalesMenuPressed ;
     notifyListeners();
   }
-}
+
+  void equalMapController (GoogleMapController controller) {
+    mapController = controller ;
+    notifyListeners();
+  }
+
+  void equalMapDone () {
+    themeDone = true ;
+    notifyListeners();
+  }
+
+  // void equalIconMarker () {
+  //   BitmapDescriptor.asset(const ImageConfiguration(
+  //     size: Size(12, 12)
+  //   ), "assets/images/logo.png").then((value) {
+  //     customIcon = value ;
+  //     notifyListeners();
+  //   });
+  // }
+
+  void addToMarkers () {
+    markers.add(
+      Marker(markerId: MarkerId("First position") ,
+      position: LatLng(23.7985053,90.3842538 ) ,
+      infoWindow: InfoWindow(title: "India") ,
+      icon: BitmapDescriptor.defaultMarker),
+    );
+    notifyListeners();
+  }
+
+  // void addSecondMarker () {
+  //   markers.add(
+  //       Marker(markerId: MarkerId("Second position") ,
+  //           position: LatLng(23.802236,90.3700 ) ,
+  //           infoWindow: InfoWindow(title: "France") ,
+  //           icon: BitmapDescriptor.defaultMarker)
+  //   );
+  //   notifyListeners();
+  }

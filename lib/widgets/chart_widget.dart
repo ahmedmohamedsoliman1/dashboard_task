@@ -10,7 +10,7 @@ class LineChartSample4 extends StatelessWidget {
     Color? belowLineColor,
     Color? aboveLineColor,
   })  : mainLineColor =
-      mainLineColor ?? Colors.transparent,
+      mainLineColor ?? AppColors.greyColor,
         belowLineColor =
             belowLineColor ?? AppColors.greenColor.withOpacity(1),
         aboveLineColor =

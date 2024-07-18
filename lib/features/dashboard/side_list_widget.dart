@@ -151,7 +151,19 @@ class _SideListWidgetState extends State<SideListWidget> {
             context: context),
             SizedBox(height: 15.h) ,
             sideListItem(
-                secondWidget: const SizedBox(),
+                secondWidget: Container(
+                  width: 10.w,
+                  height: 18.h,
+                  decoration: BoxDecoration(
+                      color: Colors.deepPurple ,
+                      borderRadius: BorderRadius.circular(5)
+                  ),
+                  child: Center(
+                      child: appText(
+                          text: "1 File",
+                          color: AppColors.whiteColor,
+                          fontSize: 10)),
+                ),
                 text: AppStrings.fileManager ,
                 icon: Icons.folder_copy ,
             context: context),

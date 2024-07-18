@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
@@ -30,8 +31,25 @@ class MainBodyDashboardWidget extends StatefulWidget {
 }
 
 class _MainBodyDashboardWidgetState extends State<MainBodyDashboardWidget> {
+
+  String mapTheme = "" ;
+  bool themeDone = false ;
+
+  @override
+  void initState() {
+    DefaultAssetBundle.of(context).loadString("assets/mapTheme/silver_theme.json").then((value) {
+      mapTheme = value ;
+      Provider.of<DashBoardViewModel>(context , listen: false).equalMapDone();
+      Provider.of<DashBoardViewModel>(context , listen: false).addToMarkers();
+      // Provider.of<DashBoardViewModel>(context , listen: false).addSecondMarker();
+    });
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
+
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -631,6 +649,847 @@ class _MainBodyDashboardWidgetState extends State<MainBodyDashboardWidget> {
               ],
             ),
           ) ,
+          SizedBox(height: 5.h,),
+          SizedBox(
+            width: MediaQuery.of(context).size.width*0.79,
+            child: Row(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width*0.5,
+                  height: MediaQuery.of(context).size.height*0.8,
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width*0.5,
+                        color: Colors.white,
+                        padding:const  EdgeInsets.all(20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            appText(
+                                text: "Revenue By Locations",
+                                color: AppColors.blackColor,
+                                fontSize: 18),
+                            Consumer<DashBoardViewModel>(
+                                builder: (context , provider , _) {
+                                  return  GestureDetector(
+                                      onLongPressStart: (details) async{
+                                        provider.totalSalesMenuPressed();
+                                        if (provider.isTotalSalesMenuPressed){
+                                          await showMenu(
+                                              context: context,
+                                              position: RelativeRect.fromLTRB(
+                                                details.globalPosition.dx,
+                                                details.globalPosition.dy,
+                                                MediaQuery.of(context).size.width - (details.globalPosition.dx),
+                                                MediaQuery.of(context).size.height - (details.globalPosition.dy),
+                                              ),
+                                              items: [
+                                                const PopupMenuItem(child: Text("Sales Report")),
+                                                const PopupMenuItem(child: Text("Export Report")),
+                                                const PopupMenuItem(child: Text("Profit")),
+                                                const PopupMenuItem(child: Text("Action"))
+                                              ]);
+                                        }
+                                      },
+                                      child: const Icon(Icons.menu , color: AppColors.blackColor,));
+                                }
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10.h,),
+                      Stack(
+                        alignment: Alignment.centerRight,
+                        children: [
+                          Consumer<DashBoardViewModel>(
+                              builder: (context , provider , _) {
+                                if (provider.themeDone){
+                                  return SizedBox(
+                                    width: MediaQuery.of(context).size.width*0.5,
+                                    height: MediaQuery.of(context).size.height*0.6,
+                                    child: Opacity(
+                                      opacity: 0.5,
+                                      child: GoogleMap(
+                                        initialCameraPosition: provider.mainPosition,
+                                        markers: provider.markers,
+                                        mapType: MapType.normal,
+                                        onMapCreated: (controller){
+                                          provider.mainController.complete(controller);
+                                          controller.setMapStyle(mapTheme).then((value){
+                                            setState(() {
+                                            });
+                                          });
+                                          provider.equalMapController(controller);
+                                          controller.animateCamera(
+                                              CameraUpdate.newCameraPosition(CameraPosition(
+                                                  target: provider.mainPosition.target)));
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                }else {
+                                  return SizedBox(
+                                    width: MediaQuery.of(context).size.width*0.5,
+                                    height: MediaQuery.of(context).size.height*0.6,
+                                  );
+                                }
+                              }),
+                          Positioned(
+                            right: 30,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Row(
+                                  children: [
+                                    appText(
+                                        text: "India",
+                                        color: AppColors.greyColor,
+                                        fontSize: 11 ,
+                                    fontWeight: FontWeight.bold) ,
+                                    SizedBox(width: 2.w),
+                                    LinearPercentIndicator(
+                                      animation: true,
+                                      width: MediaQuery.of(context).size.width*0.1,
+                                      lineHeight: 20.0,
+                                      percent: 0.7,
+                                      barRadius: const Radius.circular(2),
+                                      backgroundColor: Colors.transparent,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5.h,),
+                                Row(
+                                  children: [
+                                    appText(
+                                        text: "South Kores",
+                                        color: AppColors.greyColor,
+                                        fontSize: 11 ,
+                                        fontWeight: FontWeight.bold) ,
+                                    SizedBox(width: 2.w),
+                                    LinearPercentIndicator(
+                                      animation: true,
+                                      width: MediaQuery.of(context).size.width*0.1,
+                                      lineHeight: 20.0,
+                                      percent: 0.65,
+                                      barRadius: const Radius.circular(2),
+                                      backgroundColor: Colors.transparent,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5.h,),
+                                Row(
+                                  children: [
+                                    appText(
+                                        text: "China",
+                                        color: AppColors.greyColor,
+                                        fontSize: 11 ,
+                                        fontWeight: FontWeight.bold) ,
+                                    SizedBox(width: 2.w),
+                                    LinearPercentIndicator(
+                                      animation: true,
+                                      width: MediaQuery.of(context).size.width*0.1,
+                                      lineHeight: 20.0,
+                                      percent: 0.6,
+                                      barRadius: const Radius.circular(2),
+                                      backgroundColor: Colors.transparent,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5.h,),
+                                Row(
+                                  children: [
+                                    appText(
+                                        text: "United Kingdom",
+                                        color: AppColors.greyColor,
+                                        fontSize: 11 ,
+                                        fontWeight: FontWeight.bold) ,
+                                    SizedBox(width: 2.w),
+                                    LinearPercentIndicator(
+                                      animation: true,
+                                      width: MediaQuery.of(context).size.width*0.1,
+                                      lineHeight: 20.0,
+                                      percent: 0.55,
+                                      barRadius: const Radius.circular(2),
+                                      backgroundColor: Colors.transparent,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5.h,),
+                                Row(
+                                  children: [
+                                    appText(
+                                        text: "Japan",
+                                        color: AppColors.greyColor,
+                                        fontSize: 11 ,
+                                        fontWeight: FontWeight.bold) ,
+                                    SizedBox(width: 2.w),
+                                    LinearPercentIndicator(
+                                      animation: true,
+                                      width: MediaQuery.of(context).size.width*0.1,
+                                      lineHeight: 20.0,
+                                      percent: 0.5,
+                                      barRadius: const Radius.circular(2),
+                                      backgroundColor: Colors.transparent,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5.h,),
+                                Row(
+                                  children: [
+                                    appText(
+                                        text: "Italy",
+                                        color: AppColors.greyColor,
+                                        fontSize: 11 ,
+                                        fontWeight: FontWeight.bold) ,
+                                    SizedBox(width: 2.w),
+                                    LinearPercentIndicator(
+                                      animation: true,
+                                      width: MediaQuery.of(context).size.width*0.1,
+                                      lineHeight: 20.0,
+                                      percent: 0.3,
+                                      barRadius: const Radius.circular(2),
+                                      backgroundColor: Colors.transparent,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5.h,),
+                                Row(
+                                  children: [
+                                    appText(
+                                        text: "Canada",
+                                        color: AppColors.greyColor,
+                                        fontSize: 11 ,
+                                        fontWeight: FontWeight.bold) ,
+                                    SizedBox(width: 2.w),
+                                    LinearPercentIndicator(
+                                      animation: true,
+                                      width: MediaQuery.of(context).size.width*0.1,
+                                      lineHeight: 20.0,
+                                      percent: 0.2,
+                                      barRadius: const Radius.circular(2),
+                                      backgroundColor: Colors.transparent,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5.h,),
+                                Row(
+                                  children: [
+                                    appText(
+                                        text: "United States",
+                                        color: AppColors.greyColor,
+                                        fontSize: 11 ,
+                                        fontWeight: FontWeight.bold) ,
+                                    SizedBox(width: 2.w),
+                                    LinearPercentIndicator(
+                                      animation: true,
+                                      width: MediaQuery.of(context).size.width*0.1,
+                                      lineHeight: 20.0,
+                                      percent: 0.1,
+                                      barRadius: const Radius.circular(2),
+                                      backgroundColor: Colors.transparent,
+                                      progressColor: Colors.green,
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+
+                    ],
+                  ),
+                ),
+                SizedBox(width: 2.w,),
+                Container(
+                  width: MediaQuery.of(context).size.width*0.26,
+                  height: MediaQuery.of(context).size.height*0.8,
+                  color : Colors.white,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width*0.5,
+                        color: Colors.white,
+                        padding:const  EdgeInsets.all(20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            appText(
+                                text: "Top Selling Products",
+                                color: AppColors.blackColor,
+                                fontSize: 18),
+                            Consumer<DashBoardViewModel>(
+                                builder: (context , provider , _) {
+                                  return  ElevatedButton(
+                                      onPressed: () {
+
+                                      },
+                                    style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.blue,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5)
+                                    )
+                                    ),
+                                      child: Row(
+                                        children: [
+                                          appText(text: "Export", color: Colors.white, fontSize: 15),
+                                          SizedBox(width: 2.w,),
+                                          const Icon(Icons.download , color: Colors.white,)
+                                        ],
+                                      ) ,);
+                                }
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10.h,),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width*0.5,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            dividerThickness: 0,
+                            border: const TableBorder.symmetric(
+                              outside: BorderSide.none,
+                              inside: BorderSide(width: 1, color: Colors.grey, style: BorderStyle.solid),
+                            ),
+                              headingRowColor:
+                              WidgetStateColor.resolveWith((states) => AppColors.greyColor100),
+                              columns: const [
+                                DataColumn(label: Text("Products")),
+                                DataColumn(label: Text("Price")),
+                                DataColumn(label: Text("Orders")),
+                                DataColumn(label: Text("Avl.Quantity")),
+                              ],
+                              rows: [
+                                DataRow(cells: [
+                                  DataCell(Text("ASOS Ridley High Waist")),
+                                  DataCell(Text("\$79.49")),
+                                  DataCell(Text("82")),
+                                  DataCell(Text("8.540")),
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("Marco Lightweight Shirt")),
+                                  DataCell(Text("\$12.5")),
+                                  DataCell(Text("58")),
+                                  DataCell(Text("3.270")),
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("Half Sleeve Shirt")),
+                                  DataCell(Text("\$9.99")),
+                                  DataCell(Text("254")),
+                                  DataCell(Text("10.258")),
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("Lightweight Jacket")),
+                                  DataCell(Text("\$69.99")),
+                                  DataCell(Text("560")),
+                                  DataCell(Text("1.020")),
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("Marco Sport Shoes")),
+                                  DataCell(Text("\$119.99")),
+                                  DataCell(Text("75")),
+                                  DataCell(Text("357")),
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("Custom Women's T-shirts")),
+                                  DataCell(Text("\$45.00")),
+                                  DataCell(Text("85")),
+                                  DataCell(Text("135")),
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("Marco Sport Shoes")),
+                                  DataCell(Text("\$119.99")),
+                                  DataCell(Text("75")),
+                                  DataCell(Text("357")),
+                                ]),
+                              ]),
+
+
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 5.h,),
+          SizedBox(
+            width: MediaQuery.of(context).size.width*0.79,
+            height: MediaQuery.of(context).size.height*0.6,
+            child: Row(
+              children: [
+                Container(
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.width*(0.76/3),
+                  height: MediaQuery.of(context).size.height*0.6,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width*(0.76/3),
+                        color: Colors.white,
+                        padding:const  EdgeInsets.all(20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            appText(
+                                text: "Channels",
+                                color: AppColors.blackColor,
+                                fontSize: 15),
+                            Consumer<DashBoardViewModel>(
+                                builder: (context , provider , _) {
+                                  return  ElevatedButton(
+                                    onPressed: () {
+
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(5)
+                                        )
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        appText(text: "Export", color: Colors.white, fontSize: 15),
+                                        SizedBox(width: 2.w,),
+                                        const Icon(Icons.download , color: Colors.white,)
+                                      ],
+                                    ) ,);
+                                }
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10.h,),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width*(0.72/3),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                              dividerThickness: 0,
+                              border: const TableBorder.symmetric(
+                                outside: BorderSide.none,
+                                inside: BorderSide(width: 1, color: Colors.grey, style: BorderStyle.solid),
+                              ),
+                              headingRowColor:
+                              WidgetStateColor.resolveWith((states) => AppColors.greyColor100),
+                              columns: const [
+                                DataColumn(label: Text("Channels")),
+                                DataColumn(label: Text("Visits")),
+                                DataColumn(label: Text("Progress")),
+                              ],
+                              rows: [
+                                DataRow(cells: [
+                                  const DataCell(Text("Direct" ,
+                                  style: TextStyle(
+                                    fontSize: 12
+                                  ),)),
+                                  const DataCell(Text("2.050" ,
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.7,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.indigo,
+                                  ),),
+
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Organic Search",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("1.405",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.5,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.blue,
+                                  )),
+
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Refferal",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("750",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.4,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.yellow,
+                                  )),
+
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Social",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("540",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.3,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.red,
+                                  )),
+
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Others",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("119.99",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.2,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.green,
+                                  )),
+
+                                ]),
+                              ]),
+
+
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(width: 2.w,),
+                Container(
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.width*(0.76/3),
+                  height: MediaQuery.of(context).size.height*0.6,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width*(0.76/3),
+                        color: Colors.white,
+                        padding:const  EdgeInsets.all(20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            appText(
+                                text: "Social Media Traffic",
+                                color: AppColors.blackColor,
+                                fontSize: 15),
+                            Consumer<DashBoardViewModel>(
+                                builder: (context , provider , _) {
+                                  return  ElevatedButton(
+                                    onPressed: () {
+
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(5)
+                                        )
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        appText(text: "Export", color: Colors.white, fontSize: 15),
+                                        SizedBox(width: 2.w,),
+                                        const Icon(Icons.download , color: Colors.white,)
+                                      ],
+                                    ) ,);
+                                }
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10.h,),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width*(0.72/3),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                              dividerThickness: 0,
+                              border: const TableBorder.symmetric(
+                                outside: BorderSide.none,
+                                inside: BorderSide(width: 1, color: Colors.grey, style: BorderStyle.solid),
+                              ),
+                              headingRowColor:
+                              WidgetStateColor.resolveWith((states) => AppColors.greyColor100),
+                              columns: const [
+                                DataColumn(label: Text("Network")),
+                                DataColumn(label: Text("Visits")),
+                                DataColumn(label: Text("Progress")),
+                              ],
+                              rows: [
+                                DataRow(cells: [
+                                  const DataCell(Text("Facebook" ,
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("2.250" ,
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.8,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.indigo,
+                                  ),),
+
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Instagram",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("1.501",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.5,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.indigo,
+                                  )),
+
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Twitter",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("750",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.4,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.indigo,
+                                  )),
+
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Linkedin",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("540",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.3,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.indigo,
+                                  )),
+
+                                ]),
+                                DataRow(cells: [
+                                  const DataCell(Text("Others",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  const DataCell(Text("13.581",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(LinearPercentIndicator(
+                                    width: MediaQuery.of(context).size.width*0.05,
+                                    lineHeight: 4.0,
+                                    percent: 0.6,
+                                    barRadius: const Radius.circular(10),
+                                    backgroundColor: Colors.grey.shade100,
+                                    progressColor: Colors.indigo,
+                                  )),
+
+                                ]),
+                              ]),
+
+
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(width: 2.w,),
+                Container(
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.width*(0.76/3),
+                  height: MediaQuery.of(context).size.height*0.6,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width*(0.76/3),
+                        color: Colors.white,
+                        padding:const  EdgeInsets.all(20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            appText(
+                                text: "Engagement Overview",
+                                color: AppColors.blackColor,
+                                fontSize: 15),
+                            Consumer<DashBoardViewModel>(
+                                builder: (context , provider , _) {
+                                  return  ElevatedButton(
+                                    onPressed: () {
+
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(5)
+                                        )
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        appText(text: "Export", color: Colors.white, fontSize: 15),
+                                        SizedBox(width: 2.w,),
+                                        const Icon(Icons.download , color: Colors.white,)
+                                      ],
+                                    ) ,);
+                                }
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 10.h,),
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width*(0.72/3),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                              dividerThickness: 0,
+                              border: const TableBorder.symmetric(
+                                outside: BorderSide.none,
+                                inside: BorderSide(width: 1, color: Colors.grey, style: BorderStyle.solid),
+                              ),
+                              headingRowColor:
+                              WidgetStateColor.resolveWith((states) => AppColors.greyColor100),
+                              columns: const [
+                                DataColumn(label: Text("Duration (Secs)")),
+                                DataColumn(label: Text("Sessions")),
+                                DataColumn(label: Text("Views")),
+                              ],
+                              rows: const [
+                                DataRow(cells: [
+                                  DataCell(Text("0 - 30" ,
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("2.250" ,
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("4.250")),
+
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("31 - 60",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("1.501",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("1.050")),
+
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("61 - 120",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("750",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("1.600")),
+
+                                ]),
+                                DataRow(cells: [
+                                  DataCell(Text("121 - 240",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("540",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("1.040")),
+
+                                ]),
+                                DataRow(cells: [
+                                 DataCell(Text("241 - 420",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                 DataCell(Text("56",
+                                    style: TextStyle(
+                                        fontSize: 12
+                                    ),)),
+                                  DataCell(Text("886")),
+
+                                ]),
+                              ]),
+
+
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            )
+          ),
+          SizedBox(height: 20.h,),
         ],
       ),
     );
