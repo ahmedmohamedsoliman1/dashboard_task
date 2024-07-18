@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
@@ -78,12 +79,17 @@ class _ListViewItemState extends State<ListViewItem> {
               ),
               Consumer<DashBoardViewModel>(
                   builder: (context , provider , _) {
-                    return InkWell(
-                      onTap: () {
-
+                    return MouseRegion(
+                      cursor: SystemMouseCursors.basic,
+                      onEnter: (event){
+                        provider.startBoxAnimationFun();
                       },
-                      child: RotationTransition(
-                          turns: Tween(begin: 0.0, end: 1.0).animate(provider.controller),
+                      onExit: (event){
+                       provider.endBoxAnimationFun();
+                      },
+                      child: AnimatedRotation(
+                          turns: provider.turns,
+                          duration: const Duration(milliseconds: 400),
                           child: Container(
                             decoration: BoxDecoration(
                                 color: widget.iconColor,

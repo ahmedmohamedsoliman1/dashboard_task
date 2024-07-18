@@ -29,6 +29,10 @@ class DashBoardViewModel extends ChangeNotifier {
 
   bool isTotalSalesMenuPressed = false ;
 
+  bool startBoxAnimation = false ;
+
+  double turns = 0.0 ;
+
   DateTime? selectedToTime ;
   String? selectedToTimeFormated ;
   DateTime now = DateTime.now();
@@ -179,6 +183,19 @@ class DashBoardViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void startBoxAnimationFun  () {
+    startBoxAnimation = true ;
+    if (turns != 1/3){
+      turns += 1/3 ;
+    }
+    notifyListeners();
+  }
+
+  void endBoxAnimationFun  () {
+    startBoxAnimation = false ;
+    turns = 0.0 ;
+    notifyListeners();
+  }
   // void addSecondMarker () {
   //   markers.add(
   //       Marker(markerId: MarkerId("Second position") ,
