@@ -25,4 +25,3 @@ samples, guidance on mobile development, and a full API reference.
 
 https://github.com/user-attachments/assets/d527fdee-779f-46aa-b77e-ba4fbec8b5a8
 
-Uploading bandicam 2024-07-18 22-12-54-306.mp4…
