@@ -1,0 +1,42 @@
+class AppStrings {
+
+  static const doris = "Doris Larson" ;
+  static const founder = "Founder" ;
+  static const main = "Main";
+  static const dashboard = "Dashboard" ;
+  static const calender = "Calender" ;
+  static const chat = "Chat" ;
+  static const email = "Email" ;
+  static const tasks = "Tasks" ;
+  static const kanbanBoard = "Kanban Board" ;
+  static const fileManager = "File Manager" ;
+  static const custom = "Custom" ;
+  static const components = "Components";
+  static const pages = "Pages" ;
+  static const authPages = "Auth Pages" ;
+  static const errorPages = "Error Pages" ;
+  static const layouts = "Layouts" ;
+  static const baseUi = "Base Ui";
+  static const expandedUi = "Expanded Ui";
+  static const widgets = "Widgets";
+  static const icons = "Icons";
+  static const charts = "Charts";
+  static const forms = "Forms";
+  static const tables = "Tables";
+  static const maps = "Maps";
+  static const multiLevels = "Multi Level";
+  static const search = "Search...";
+  static const themeSettings = "Theme Settings";
+  static const chooseLayout = "Choose Layout" ;
+  static const vertical = "Vertical" ;
+  static const horizontal = "Horizontal" ;
+  static const colorTheme = "Color Theme" ;
+  static const light = "Light" ;
+  static const dark = "Dark" ;
+  static const layoutMode = "Layout Mode" ;
+  static const fluid = "Fluid" ;
+  static const boxed = "Boxed" ;
+  static const detached = "Detached" ;
+  static const layoutPosition = "Layout Position";
+  static const sidebarUserInfo = "Sidebar User Info";
+}
